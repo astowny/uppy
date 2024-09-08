@@ -9,7 +9,7 @@ const app = require('express')()
 const DATA_DIR = path.join(__dirname, 'tmp')
 
 app.use(require('cors')({
-  origin: 'http://localhost:3000',
+  origin: '*',
   methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true,
 }))
@@ -41,6 +41,32 @@ const options = {
   secret: 'blah blah',
   debug: true,
 }
+
+// get presigned url from wasabi
+app.post('/get-presigned-url', async (req, res) => {
+  try {
+    const { key, action } = req.body;
+
+    const response = await fetch('https://lgq6d6awbqy2zj6m5ayy4q5cri0bmhtk.lambda-url.eu-west-3.on.aws/', {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-secret': "l#z=61WQTGNQqTz-]#w*alWbyI2W;}<7ufMxwvr&7}n.:~(7Xdz4WT@@&zx'@nW"
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        key, // or just `key,` in modern JS syntax
+        action
+      })
+    });
+
+    const result = await response.json();
+
+    res.json(result); // Send the fetched result to the client
+  } catch (error) {
+    console.error('Error fetching presigned URL:', error);
+    res.status(500).json({ error: 'Failed to fetch presigned URL' });
+  }
+})
 
 // Create the data directory here for the sake of the example.
 try {
