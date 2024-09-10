@@ -3,6 +3,16 @@ const path = require('node:path')
 const crypto = require('node:crypto')
 const companion = require('@uppy/companion')
 
+const deepgramUrl = 'https://api.deepgram.com/v1/listen';
+const apiKey = 'YOUR_API_KEY'; // Remplacez par votre clé API
+
+const headers = {
+  'Accept': 'application/json',
+  'Authorization': `Token ${apiKey}`,
+  'Content-Type': 'application/json',
+};
+
+
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
 const app = require('express')()
 
@@ -27,6 +37,22 @@ const options = {
       key: process.env.COMPANION_GOOGLE_KEY,
       secret: process.env.COMPANION_GOOGLE_SECRET,
     },
+    dropbox: {
+      key: process.env.COMPANION_DROPBOX_KEY,
+      secret: process.env.COMPANION_DROPBOX_SECRET,
+    },
+    box: {
+      key: process.env.COMPANION_BOX_KEY,
+      secret: process.env.COMPANION_BOX_SECRET,
+    },
+    onedrive: {
+      key: process.env.COMPANION_ONEDRIVE_KEY,
+      secret: process.env.COMPANION_ONEDRIVE_SECRET,
+    },
+    zoom: {
+      key: process.env.COMPANION_ZOOM_KEY,
+      secret: process.env.COMPANION_ZOOM_SECRET,
+    },
   },
   s3: {
     getKey: (req, filename) => `${crypto.randomUUID()}-${filename}`,
@@ -41,6 +67,8 @@ const options = {
   secret: 'blah blah',
   debug: true,
 }
+
+app.get('/', (req, res) => res.send('Hello World!'))
 
 // get presigned url from wasabi
 app.post('/get-presigned-url', async (req, res) => {
@@ -67,6 +95,31 @@ app.post('/get-presigned-url', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch presigned URL' });
   }
 })
+
+app.post('/transcribe', async (req, res) => {
+  const audioUrl = req.body.url;
+
+  const data = {
+    url: audioUrl,
+  };
+
+  try {
+    const response = await fetch(deepgramUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
+
+    const transcription = await response.json();
+    
+    // Retourner la transcription au client
+    res.status(200).json(transcription);
+  } catch (error) {
+    console.error('Erreur:', error);
+    res.status(500).json({ message: 'Erreur lors de la transcription.' });
+  }
+});
+
 
 // Create the data directory here for the sake of the example.
 try {

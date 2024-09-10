@@ -6,7 +6,8 @@
     "@uppy/aws-s3": "workspace:*",
     "@uppy/core": "workspace:*",
     "@uppy/dashboard": "workspace:*",
-    "@uppy/google-drive": "workspace:*",
+    "@uppy/locales": "workspace:*",
+    "@uppy/remote-sources": "workspace:*",
     "@uppy/webcam": "workspace:*"
   },
   "devDependencies": {
