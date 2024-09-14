@@ -220,7 +220,7 @@ function DoneBtn(props: DoneBtnProps) {
       onClick={doneButtonHandler}
       data-uppy-super-focusable
     >
-      {i18n('done')}
+      {i18n('back')}
     </button>
   )
 }

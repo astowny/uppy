@@ -228,8 +228,12 @@ class Uploader {
   async _uploadByProtocol() {
     // todo a default protocol should not be set. We should ensure that the user specifies their protocol.
     // after we drop old versions of uppy client we can remove this
-    const protocol = this.options.protocol || PROTOCOLS.multipart
+    const protocol = this.options.protocol || PROTOCOLS.s3Multipart
+    // const protocol = PROTOCOLS.s3Multipart
 
+    // console.log('protocol', protocol);
+    // console.log('this.options', this.options);
+    
     switch (protocol) {
       case PROTOCOLS.multipart:
         return this.#uploadMultipart(this.readStream)
@@ -278,6 +282,7 @@ class Uploader {
    * @param {import('stream').Readable} stream
    */
   async uploadStream(stream) {
+    // console.log('uploadStream');
     try {
       if (this.#uploadState !== states.idle) throw new Error('Can only start an upload in the idle state')
       if (this.readStream) throw new Error('Already uploading')
@@ -321,6 +326,7 @@ class Uploader {
       emitter().emit('upload-start', { token: this.token })
 
       const ret = await this.uploadStream(stream)
+      // console.log('res uploadStream', ret);
       if (!ret) return
       const { url, extraData } = ret
       this.#emitSuccess(url, extraData)
@@ -493,6 +499,7 @@ class Uploader {
       action: 'success',
       payload: { ...extraData, complete: true, url },
     }
+    // console.log('in #emitSuccess', emitData);
     this.saveState(emitData)
     emitter().emit(this.token, emitData)
   }
@@ -512,6 +519,7 @@ class Uploader {
       payload: { ...err.extraData, error: serializedErr },
     }
     this.saveState(dataToEmit)
+    // console.log('emitError', dataToEmit, this.token);
     emitter().emit(this.token, dataToEmit)
   }
 
@@ -670,6 +678,7 @@ class Uploader {
    * Upload the file to S3 using a Multipart upload.
    */
   async #uploadS3Multipart(stream) {
+    // console.log('in upload s3 multipart', stream);
     if (!this.options.s3) {
       throw new Error('The S3 client is not configured on this companion instance.')
     }

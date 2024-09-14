@@ -43,7 +43,7 @@ const downloadURL = async (url, blockLocalIPs, traceId) => {
  */
 const meta = async (req, res) => {
   try {
-    logger.debug('URL file import handler running', null, req.id)
+    logger.debug('meta - URL file import handler running', null, req.id)
     const { allowLocalUrls } = req.companion.options
     if (!validateURL(req.body.url, allowLocalUrls)) {
       logger.debug('Invalid request body detected. Exiting url meta handler.', null, req.id)
@@ -66,7 +66,7 @@ const meta = async (req, res) => {
  * @param {object} res expressJS response object
  */
 const get = async (req, res) => {
-  logger.debug('URL file import handler running', null, req.id)
+  logger.debug('get - URL file import handler running', null, req.id)
   const { allowLocalUrls } = req.companion.options
   if (!validateURL(req.body.url, allowLocalUrls)) {
     logger.debug('Invalid request body detected. Exiting url import handler.', null, req.id)

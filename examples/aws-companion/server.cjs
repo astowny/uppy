@@ -66,6 +66,7 @@ const options = {
   filePath: DATA_DIR,
   secret: 'blah blah',
   debug: true,
+  // enableUrlEndpoint: true
 }
 
 app.get('/', (req, res) => res.send('Hello World!'))

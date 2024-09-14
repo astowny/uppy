@@ -8,6 +8,7 @@
     "@uppy/dashboard": "workspace:*",
     "@uppy/locales": "workspace:*",
     "@uppy/remote-sources": "workspace:*",
+    "@uppy/url": "workspace:*",
     "@uppy/webcam": "workspace:*"
   },
   "devDependencies": {
