@@ -8204,7 +8204,9 @@ __metadata:
     "@uppy/companion": "workspace:*"
     "@uppy/core": "workspace:*"
     "@uppy/dashboard": "workspace:*"
-    "@uppy/google-drive": "workspace:*"
+    "@uppy/locales": "workspace:*"
+    "@uppy/remote-sources": "workspace:*"
+    "@uppy/url": "workspace:*"
     "@uppy/webcam": "workspace:*"
     body-parser: "npm:^1.20.0"
     cookie-parser: "npm:^1.4.6"
@@ -8856,7 +8858,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@uppy/locales@workspace:packages/@uppy/locales":
+"@uppy/locales@workspace:*, @uppy/locales@workspace:packages/@uppy/locales":
   version: 0.0.0-use.local
   resolution: "@uppy/locales@workspace:packages/@uppy/locales"
   dependencies:
@@ -21714,6 +21716,13 @@ __metadata:
   peerDependencies:
     webpack: ^5.0.0
   checksum: 10/4c9ee9c0c6160a64a4884d5a92a1a5c0b68d556cd00f975cf6c8a79b51ac90e6130a37b3832b17d377d0cb1b31c0313c8c023458d4f69e95fe3424a8b43d834f
+  languageName: node
+  linkType: hard
+
+"miniget@npm:^4.2.2":
+  version: 4.2.3
+  resolution: "miniget@npm:4.2.3"
+  checksum: c2db18570b4dc6771a6824993f9a33360b02ef92173bf38a5d772f27640f4f493153f73da1b28700c2b55cb7526321446ce2f326c667ad671fb78c8998c1402f
   languageName: node
   linkType: hard
 

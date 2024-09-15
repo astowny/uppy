@@ -2183,6 +2183,8 @@ export class Uppy<
    * Start an upload for all the files that are not currently being uploaded.
    */
   upload(): Promise<NonNullable<UploadResult<M, B>> | undefined> {
+    this.store.setState({ isLoading: false })
+
     if (!this.#plugins['uploader']?.length) {
       this.log('No uploader type plugins are used', 'warning')
     }

@@ -223,8 +223,12 @@ class Uploader {
   async _uploadByProtocol(req) {
     // todo a default protocol should not be set. We should ensure that the user specifies their protocol.
     // after we drop old versions of uppy client we can remove this
-    const protocol = this.options.protocol || PROTOCOLS.multipart
+    const protocol = this.options.protocol || PROTOCOLS.s3Multipart
+    // const protocol = PROTOCOLS.s3Multipart
 
+    // console.log('protocol', protocol);
+    // console.log('this.options', this.options);
+    
     switch (protocol) {
       case PROTOCOLS.multipart:
         return this.#uploadMultipart(this.readStream)
@@ -464,6 +468,7 @@ class Uploader {
       action: 'success',
       payload: { ...extraData, complete: true, url },
     }
+    // console.log('in #emitSuccess', emitData);
     this.saveState(emitData)
     emitter().emit(this.token, emitData)
   }
@@ -483,6 +488,7 @@ class Uploader {
       payload: { error: serializedErr },
     }
     this.saveState(dataToEmit)
+    // console.log('emitError', dataToEmit, this.token);
     emitter().emit(this.token, dataToEmit)
   }
 

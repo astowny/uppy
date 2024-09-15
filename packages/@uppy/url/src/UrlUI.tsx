@@ -5,6 +5,7 @@ import type { I18n } from '@uppy/utils/lib/Translator'
 type UrlUIProps = {
   i18n: I18n
   addFile: (url: string) => void
+  isLoading: boolean
 }
 
 class UrlUI extends Component<UrlUIProps> {
@@ -29,15 +30,21 @@ class UrlUI extends Component<UrlUIProps> {
     document.body.removeChild(this.form)
   }
 
-  #handleSubmit = (ev: SubmitEvent) => {
+  #handleSubmit = async (ev: SubmitEvent) => {
     ev.preventDefault()
     const { addFile } = this.props
     const preparedValue = this.input.value.trim()
-    addFile(preparedValue)
+
+    try {
+      await addFile(preparedValue)
+    } catch (error) {
+      console.log('error in #handleSubmit', error)
+    }
   }
 
   render(): ComponentChild {
-    const { i18n } = this.props
+    const { i18n, isLoading } = this.props
+    const btnText = isLoading ? '...' : i18n('import')
     return (
       <div className="uppy-Url">
         <input
@@ -56,7 +63,7 @@ class UrlUI extends Component<UrlUIProps> {
           type="submit"
           form={this.form.id}
         >
-          {i18n('import')}
+          {btnText}
         </button>
       </div>
     )

@@ -34,6 +34,7 @@ const validateURL = (url, allowLocalUrls) => {
     require_protocol: true,
     require_tld: !allowLocalUrls,
   }
+  
   if (!validator.isURL(url, validURLOpts)) {
     return false
   }

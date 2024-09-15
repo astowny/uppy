@@ -12,7 +12,7 @@ const renderFileName = (props: {
   isSingleFile: boolean
   containerHeight: number
   containerWidth: number
-}) => {
+}, isYoutubeUrl = false) => {
   const { author, name } = props.file.meta
 
   function getMaxNameLength() {
@@ -31,9 +31,13 @@ const renderFileName = (props: {
     return author ? 20 : 30
   }
 
+  let nameDecoded = name
+  const USE_DECODEURI = false
+  if (isYoutubeUrl && USE_DECODEURI) nameDecoded = decodeURI(name)
+
   return (
-    <div className="uppy-Dashboard-Item-name" title={name}>
-      {truncateString(name, getMaxNameLength())}
+    <div className="uppy-Dashboard-Item-name" title={nameDecoded}>
+      {truncateString(nameDecoded, getMaxNameLength())}
     </div>
   )
 }
@@ -125,6 +129,7 @@ type FileInfoProps = {
   toggleFileCard: (show: boolean, fileId: string) => void
   metaFields: DashboardState<any, any>['metaFields']
   isSingleFile: boolean
+  isYoutubeUrl: boolean
 }
 
 export default function FileInfo(props: FileInfoProps) {
@@ -137,6 +142,7 @@ export default function FileInfo(props: FileInfoProps) {
     isSingleFile,
     containerHeight,
     containerWidth,
+    isYoutubeUrl
   } = props
   return (
     <div
@@ -149,7 +155,7 @@ export default function FileInfo(props: FileInfoProps) {
           isSingleFile,
           containerHeight,
           containerWidth,
-        })}
+        }, isYoutubeUrl)}
         <ErrorButton file={file} onClick={() => alert(file.error)} />
       </div>
       <div className="uppy-Dashboard-Item-status">

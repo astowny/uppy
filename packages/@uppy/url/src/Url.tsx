@@ -59,6 +59,44 @@ function getFileNameFromUrl(url: string) {
   return pathname.substring(pathname.lastIndexOf('/') + 1)
 }
 
+function isYoutubeUrlFunc(url: string): boolean {
+  if (!url) return false
+
+  try {
+    const parsedUrl = new URL(url)
+    return (
+      parsedUrl.hostname === 'www.youtube.com' ||
+      parsedUrl.hostname === 'youtube.com' ||
+      parsedUrl.hostname === 'youtu.be'
+    )
+  } catch (error) {
+    // Invalid URL format
+    return false
+  }
+}
+
+async function transformYouTubeUrl(
+  url: string,
+): Promise<{ message: string; url: string }> {
+  if (!url) return { url, message: 'No URL provided' }
+
+  try {
+    const response = await fetch('http://157.173.114.28/download', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        url,
+      }),
+    }).then((resp) => resp.json())
+    return response
+  } catch (error) {
+    console.error('error', error)
+    return error
+  }
+}
+
 /*
  * Response from the /url/meta Companion endpoint.
  * Has to be kept in sync with `getURLMeta` in `companion/src/server/helpers/request.js`.
@@ -94,6 +132,7 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
     this.id = this.opts.id || 'Url'
     this.type = 'acquirer'
     this.icon = () => <UrlIcon />
+    this.uppy.store.setState({ isYoutubeUrl: false })
 
     // Set default options and locale
     this.defaultLocale = locale
@@ -128,11 +167,20 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
     protocollessUrl: string,
     optionalMeta?: M,
   ): Promise<string | undefined> => {
-    const url = addProtocolToURL(protocollessUrl)
+    this.uppy.store.setState({ isLoading: true })
+
+    let url = addProtocolToURL(protocollessUrl)
     if (!checkIfCorrectURL(url)) {
       this.uppy.log(`[URL] Incorrect URL entered: ${url}`)
       this.uppy.info(this.i18n('enterCorrectUrl'), 'error', 4000)
       return undefined
+    }
+
+    if (this.uppy.store.getState().isYoutubeUrl) {
+      const dataTransform = await transformYouTubeUrl(url)
+      const encodedUrl = encodeURI(dataTransform.url)
+      if (encodedUrl) url = encodedUrl
+      // if (dataTransform.url) url = dataTransform.url
     }
 
     try {
@@ -163,11 +211,13 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
 
       this.uppy.log('[Url] Adding remote file')
       try {
+        this.uppy.store.setState({ isYoutubeUrl: isYoutubeUrlFunc(url) })
         return this.uppy.addFile(tagFile)
       } catch (err) {
         if (!err.isRestriction) {
           this.uppy.log(err)
         }
+        this.uppy.store.setState({ isLoading: false })
         return err
       }
     } catch (err) {
@@ -180,6 +230,7 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
         'error',
         4000,
       )
+      this.uppy.store.setState({ isLoading: false })
       return err
     }
   }
@@ -199,7 +250,13 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
   }
 
   render(): ComponentChild {
-    return <UrlUI i18n={this.i18n} addFile={this.addFile} />
+    return (
+      <UrlUI
+        i18n={this.i18n}
+        isLoading={this.uppy.store.getState().isLoading as boolean}
+        addFile={this.addFile}
+      />
+    )
   }
 
   install(): void {

@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   uppy:
     image: transloadit/companion
@@ -8,7 +6,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - /app/node_modules
-      - /mnt/uppy-server-data:/mnt/uppy-server-data
+      - /tmp/uppy-server-data:/mnt/uppy-server-data
     ports:
       - '3020:3020'
     env_file:

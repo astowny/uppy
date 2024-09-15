@@ -137,6 +137,7 @@ export default class FileItem<M extends Meta, B extends Body> extends Component<
         <div className="uppy-Dashboard-Item-fileInfoAndButtons">
           <FileInfo
             file={file}
+            isYoutubeUrl={this.props.uppy.store.getState().isYoutubeUrl}
             containerWidth={this.props.containerWidth}
             containerHeight={this.props.containerHeight}
             i18n={this.props.i18n}
