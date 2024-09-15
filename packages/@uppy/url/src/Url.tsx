@@ -184,8 +184,6 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
       return undefined
     }
 
-    this.uppy.store.setState({ isYoutubeUrl: isYoutubeUrlFunc(url) })
-
     if (this.uppy.store.getState().isYoutubeUrl) {
       const dataTransform = await transformYouTubeUrl(url)
       const encodedUrl = encodeURI(dataTransform.url)
@@ -221,11 +219,13 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
 
       this.uppy.log('[Url] Adding remote file')
       try {
+        this.uppy.store.setState({ isYoutubeUrl: isYoutubeUrlFunc(url) })
         return this.uppy.addFile(tagFile)
       } catch (err) {
         if (!err.isRestriction) {
           this.uppy.log(err)
         }
+        this.uppy.store.setState({ isLoading: false })
         return err
       }
     } catch (err) {
@@ -238,6 +238,7 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
         'error',
         4000,
       )
+      this.uppy.store.setState({ isLoading: false })
       return err
     }
   }
