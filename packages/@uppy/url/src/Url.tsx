@@ -175,6 +175,8 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
     protocollessUrl: string,
     optionalMeta?: M,
   ): Promise<string | undefined> => {
+    this.uppy.store.setState({ isLoading: true })
+
     let url = addProtocolToURL(protocollessUrl)
     if (!checkIfCorrectURL(url)) {
       this.uppy.log(`[URL] Incorrect URL entered: ${url}`)
@@ -255,7 +257,13 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
   }
 
   render(): ComponentChild {
-    return <UrlUI i18n={this.i18n} addFile={this.addFile} />
+    return (
+      <UrlUI
+        i18n={this.i18n}
+        isLoading={this.uppy.store.getState().isLoading as boolean}
+        addFile={this.addFile}
+      />
+    )
   }
 
   install(): void {

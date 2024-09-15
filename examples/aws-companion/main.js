@@ -8,6 +8,7 @@ import French from '@uppy/locales/lib/fr_FR'
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
 import '@uppy/webcam/dist/style.css'
+import '@uppy/url/dist/style.css'
 
 const COMPANION_URL = 'http://localhost:3020'
 const uppy = new Uppy({
