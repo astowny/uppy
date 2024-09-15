@@ -33,7 +33,6 @@ const validateURL = (url, allowLocalUrls) => {
     require_protocol: true,
     require_tld: !allowLocalUrls,
   }
-  console.log('validator.isURL(url, validURLOpts)', validator.isURL(url, validURLOpts));
   
   if (!validator.isURL(url, validURLOpts)) {
     return false

@@ -6,7 +6,7 @@ import MetaErrorMessage from '../MetaErrorMessage.tsx'
 
 type $TSFixMe = any
 
-const renderFileName = (props: $TSFixMe) => {
+const renderFileName = (props: $TSFixMe, isYoutubeUrl = false) => {
   const { author, name } = props.file.meta
 
   function getMaxNameLength() {
@@ -25,9 +25,13 @@ const renderFileName = (props: $TSFixMe) => {
     return author ? 20 : 30
   }
 
+  let nameDecoded = name
+  const USE_DECODEURI = false
+  if (isYoutubeUrl && USE_DECODEURI) nameDecoded = decodeURI(name)
+
   return (
-    <div className="uppy-Dashboard-Item-name" title={name}>
-      {truncateString(name, getMaxNameLength())}
+    <div className="uppy-Dashboard-Item-name" title={nameDecoded}>
+      {truncateString(nameDecoded, getMaxNameLength())}
     </div>
   )
 }
@@ -101,14 +105,14 @@ const ErrorButton = ({ file, onClick }: $TSFixMe) => {
 }
 
 export default function FileInfo(props: $TSFixMe): ComponentChild {
-  const { file } = props
+  const { file, isYoutubeUrl } = props
   return (
     <div
       className="uppy-Dashboard-Item-fileInfo"
       data-uppy-file-source={file.source}
     >
       <div className="uppy-Dashboard-Item-fileName">
-        {renderFileName(props)}
+        {renderFileName(props, isYoutubeUrl)}
         <ErrorButton
           file={props.file}
           // eslint-disable-next-line no-alert

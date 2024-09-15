@@ -59,7 +59,7 @@ function getFileNameFromUrl(url: string) {
   return pathname.substring(pathname.lastIndexOf('/') + 1)
 }
 
-function isYoutubeUrl(url: string): boolean {
+function isYoutubeUrlFunc(url: string): boolean {
   if (!url) return false
 
   try {
@@ -90,7 +90,6 @@ async function transformYouTubeUrl(
         url,
       }),
     }).then((resp) => resp.json())
-    console.log(response)
     return response
   } catch (error) {
     console.error('error', error)
@@ -134,6 +133,7 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
     this.title = this.opts.title || 'Link'
     this.type = 'acquirer'
     this.icon = () => <UrlIcon />
+    this.uppy.store.setState({ isYoutubeUrl: false })
 
     // Set default options and locale
     this.defaultLocale = locale
@@ -182,7 +182,9 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
       return undefined
     }
 
-    if (isYoutubeUrl(url)) {
+    this.uppy.store.setState({ isYoutubeUrl: isYoutubeUrlFunc(url) })
+
+    if (this.uppy.store.getState().isYoutubeUrl) {
       const dataTransform = await transformYouTubeUrl(url)
       const encodedUrl = encodeURI(dataTransform.url)
       if (encodedUrl) url = encodedUrl
