@@ -34,6 +34,7 @@ uppy.use(Dashboard, {
   inline: true,
   target: 'body',
   plugins: ['GoogleDrive',],
+  proudlyDisplayPoweredByUppy: false
 })
 uppy.use(AwsS3, {
   companionUrl: 'http://localhost:3020',

@@ -8762,6 +8762,7 @@ __metadata:
     "@uppy/dashboard": "workspace:*"
     "@uppy/locales": "workspace:*"
     "@uppy/remote-sources": "workspace:*"
+    "@uppy/url": "workspace:*"
     "@uppy/webcam": "workspace:*"
     body-parser: ^1.20.0
     cookie-parser: ^1.4.6
