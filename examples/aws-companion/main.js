@@ -17,7 +17,7 @@ const uppy = new Uppy({
 })
 uppy.use(Url, {
   companionUrl: COMPANION_URL,
-  title: 'Lien',
+  title: 'Liens',
 })
 uppy.use(RemoteSources, {
   companionUrl: COMPANION_URL,

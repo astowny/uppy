@@ -59,6 +59,45 @@ function getFileNameFromUrl(url: string) {
   return pathname.substring(pathname.lastIndexOf('/') + 1)
 }
 
+function isYoutubeUrl(url: string): boolean {
+  if (!url) return false
+
+  try {
+    const parsedUrl = new URL(url)
+    return (
+      parsedUrl.hostname === 'www.youtube.com' ||
+      parsedUrl.hostname === 'youtube.com' ||
+      parsedUrl.hostname === 'youtu.be'
+    )
+  } catch (error) {
+    // Invalid URL format
+    return false
+  }
+}
+
+async function transformYouTubeUrl(
+  url: string,
+): Promise<{ message: string; url: string }> {
+  if (!url) return { url, message: 'No URL provided' }
+
+  try {
+    const response = await fetch('http://157.173.114.28/download', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        url,
+      }),
+    }).then((resp) => resp.json())
+    console.log(response)
+    return response
+  } catch (error) {
+    console.error('error', error)
+    return error
+  }
+}
+
 /*
  * Response from the /url/meta Companion endpoint.
  * Has to be kept in sync with `getURLMeta` in `companion/src/server/helpers/request.js`.
@@ -136,11 +175,18 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
     protocollessUrl: string,
     optionalMeta?: M,
   ): Promise<string | undefined> => {
-    const url = addProtocolToURL(protocollessUrl)
+    let url = addProtocolToURL(protocollessUrl)
     if (!checkIfCorrectURL(url)) {
       this.uppy.log(`[URL] Incorrect URL entered: ${url}`)
       this.uppy.info(this.i18n('enterCorrectUrl'), 'error', 4000)
       return undefined
+    }
+
+    if (isYoutubeUrl(url)) {
+      const dataTransform = await transformYouTubeUrl(url)
+      const encodedUrl = encodeURI(dataTransform.url)
+      if (encodedUrl) url = encodedUrl
+      // if (dataTransform.url) url = dataTransform.url
     }
 
     try {

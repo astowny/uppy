@@ -71,6 +71,26 @@ const options = {
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
+// app.get('/transform-youtube-url', async (req, res) => { 
+//   try {
+//     const { url } = req.query;
+//     const response = await fetch('http://157.173.114.28/download', {
+//       headers: {
+//         'Content-Type': 'application/json',
+//         // 'x-api-secret': "l#z=61WQTGNQqTz-]#w*alWbyI2W;}<7ufMxwvr&7}n.:~(7Xdz4WT@@&zx'@nW"
+//       },
+//       method: 'POST',
+//       body: JSON.stringify({
+//         url
+//       })
+//     }).then(resp => resp.json());
+//     console.log(response);
+//     await res.json(response);
+//   } catch (error) {
+//     console.error('error', error)
+//   }
+// })
+
 // get presigned url from wasabi
 app.post('/get-presigned-url', async (req, res) => {
   try {
