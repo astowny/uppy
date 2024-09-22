@@ -81,7 +81,7 @@ async function transformYouTubeUrl(
   if (!url) return { url, message: 'No URL provided' }
 
   try {
-    const response = await fetch('http://157.173.114.28/download', {
+    const response = await fetch('https://youtube-url.translia.tech/download', {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -183,6 +183,8 @@ export default class Url<M extends Meta, B extends Body> extends UIPlugin<
       this.uppy.info(this.i18n('enterCorrectUrl'), 'error', 4000)
       return undefined
     }
+
+    this.uppy.store.setState({ isYoutubeUrl: isYoutubeUrlFunc(url) })
 
     if (this.uppy.store.getState().isYoutubeUrl) {
       const dataTransform = await transformYouTubeUrl(url)

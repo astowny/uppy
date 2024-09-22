@@ -10,15 +10,11 @@ import '@uppy/dashboard/dist/style.css'
 import '@uppy/webcam/dist/style.css'
 import '@uppy/url/dist/style.css'
 
-const COMPANION_URL = 'http://localhost:3020'
+const COMPANION_URL = 'http://companion.translia.tech'
 const uppy = new Uppy({
   debug: true,
   autoProceed: true,
   locale:French
-})
-uppy.use(Url, {
-  companionUrl: COMPANION_URL,
-  title: 'Liens',
 })
 uppy.use(RemoteSources, {
   companionUrl: COMPANION_URL,
@@ -35,6 +31,10 @@ uppy.use(Dashboard, {
   target: 'body',
   plugins: ['GoogleDrive',],
   proudlyDisplayPoweredByUppy: false
+})
+uppy.use(Url, {
+  companionUrl: COMPANION_URL,
+  title: 'Liens',
 })
 uppy.use(AwsS3, {
   companionUrl: 'http://localhost:3020',

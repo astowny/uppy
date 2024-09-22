@@ -35,6 +35,7 @@
   "packageManager": "yarn@3.8.0+sha256.a1a53a88823c9f5bcd36e465791b7e490837ebf94dc6ef96282ab558a00c0811",
   "workspaces": [
     "examples/*",
+    "packages/@astowny/*",
     "packages/@uppy/*",
     "packages/@uppy/angular/projects/uppy/*",
     "packages/uppy",
