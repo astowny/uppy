@@ -56,7 +56,6 @@ main()
 // fetch('https://lgq6d6awbqy2zj6m5ayy4q5cri0bmhtk.lambda-url.eu-west-3.on.aws/', {
 //   headers: {
 //     'Content-Type': 'application/json',
-//     'x-api-secret': 'l#z=61WQTGNQqTz-]#w*alWbyI2W;}<7ufMxwvr&7}n.:~(7Xdz4WT@@&zx\'@nW'
 //   },
 //   method: 'POST',
 //   body: {
