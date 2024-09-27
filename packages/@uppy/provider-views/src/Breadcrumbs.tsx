@@ -29,7 +29,7 @@ export default function Breadcrumbs<M extends Meta, B extends Body>(
           >
             {folder.type === 'root' ?
               title
-            : folder.data.name ?? i18n('unnamed')}
+            : (folder.data.name ?? i18n('unnamed'))}
           </button>
           {breadcrumbs.length === index + 1 ? '' : ' / '}
         </Fragment>

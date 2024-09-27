@@ -7,12 +7,15 @@ import type { UppyFile } from '@uppy/core'
 import MetaErrorMessage from '../MetaErrorMessage.tsx'
 import type { DashboardState } from '../../../Dashboard.ts'
 
-const renderFileName = (props: {
-  file: UppyFile<any, any>
-  isSingleFile: boolean
-  containerHeight: number
-  containerWidth: number
-}, isYoutubeUrl = false) => {
+const renderFileName = (
+  props: {
+    file: UppyFile<any, any>
+    isSingleFile: boolean
+    containerHeight: number
+    containerWidth: number
+  },
+  isYoutubeUrl = false,
+) => {
   const { author, name } = props.file.meta
 
   function getMaxNameLength() {
@@ -142,7 +145,7 @@ export default function FileInfo(props: FileInfoProps) {
     isSingleFile,
     containerHeight,
     containerWidth,
-    isYoutubeUrl
+    isYoutubeUrl,
   } = props
   return (
     <div
@@ -150,12 +153,15 @@ export default function FileInfo(props: FileInfoProps) {
       data-uppy-file-source={file.source}
     >
       <div className="uppy-Dashboard-Item-fileName">
-        {renderFileName({
-          file,
-          isSingleFile,
-          containerHeight,
-          containerWidth,
-        }, isYoutubeUrl)}
+        {renderFileName(
+          {
+            file,
+            isSingleFile,
+            containerHeight,
+            containerWidth,
+          },
+          isYoutubeUrl,
+        )}
         <ErrorButton file={file} onClick={() => alert(file.error)} />
       </div>
       <div className="uppy-Dashboard-Item-status">

@@ -169,9 +169,15 @@ module.exports = function server(inputCompanionOptions) {
     })
   }
 
-  app.use((req, res) => {
-    return res.status(404).json({ message: 'Not Found' })
-  })
+  // app.use((err, req, res) => {
+  //   if (err.status === 400 && err.name === 'URIError') {
+  //     logger.error(err.message, 'root.error', req.id)
+  //   } else {
+  //     logger.error(err, 'root.error', req.id)
+  //   }
+
+  //   return res.status(404).json({ message: 'Not Found' })
+  // })
 
   app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     if (app.get('env') === 'production') {
