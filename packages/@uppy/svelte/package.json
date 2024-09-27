@@ -2,7 +2,7 @@
   "name": "@uppy/svelte",
   "description": "Uppy plugin that helps integrate Uppy into your Svelte project.",
   "type": "module",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "scripts": {
     "build": "rollup -c",
     "prepublishOnly": "yarn run build",
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.0",
     "@tsconfig/svelte": "^5.0.0",
-    "rollup": "^4.0.0",
+    "rollup": "^4.22.4",
     "rollup-plugin-svelte": "^7.0.0",
     "rollup-plugin-svelte-types": "^1.0.6",
     "svelte": "^4.2.19",
