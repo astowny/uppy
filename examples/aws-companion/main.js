@@ -29,7 +29,6 @@ uppy.use(RemoteSources, {
 uppy.use(Dashboard, {
   inline: true,
   target: 'body',
-  plugins: ['GoogleDrive',],
   proudlyDisplayPoweredByUppy: false
 })
 uppy.use(Url, {
@@ -37,8 +36,8 @@ uppy.use(Url, {
   title: 'Liens',
 })
 uppy.use(AwsS3, {
-  companionUrl: 'http://localhost:3020',
-  shouldUseMultipart: true,
+  endpoint: 'http://localhost:3020',
+  shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
 })
 
 // const getPresignedGetURL = async (key) => {

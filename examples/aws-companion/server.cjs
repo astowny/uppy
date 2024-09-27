@@ -32,6 +32,7 @@ app.use(require('express-session')({
 }))
 
 const options = {
+  corsOrigins: process.env.NODE_ENV === 'production' ? ['https://translia.tech'] : true, 
   providerOptions: {
     drive: {
       key: process.env.COMPANION_GOOGLE_KEY,
