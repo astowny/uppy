@@ -1,7 +1,7 @@
 import type { ComponentChild } from 'preact'
 import type { Body, Meta, UppyFile } from '@uppy/utils/lib/UppyFile'
-import type { Uppy, State } from '@uppy/core/lib/Uppy'
-import type { DefinePluginOpts } from '@uppy/core/lib/BasePlugin'
+import type { Uppy, State } from '@uppy/core/lib/Uppy.js'
+import type { DefinePluginOpts } from '@uppy/core/lib/BasePlugin.js'
 import { UIPlugin } from '@uppy/core'
 import emaFilter from '@uppy/utils/lib/emaFilter'
 import getTextDirection from '@uppy/utils/lib/getTextDirection'
@@ -11,7 +11,7 @@ import StatusBarUI, { type StatusBarUIProps } from './StatusBarUI.tsx'
 // @ts-ignore We don't want TS to generate types for the package.json
 import packageJson from '../package.json'
 import locale from './locale.ts'
-import type { StatusBarOptions } from './StatusBarOptions.js'
+import type { StatusBarOptions } from './StatusBarOptions.ts'
 
 const speedFilterHalfLife = 2000
 const ETAFilterHalfLife = 2000
@@ -57,9 +57,7 @@ function getUploadingState(
   return state
 }
 
-// set default options, must be kept in sync with @uppy/react/src/StatusBar.js
 const defaultOptions = {
-  target: 'body',
   hideUploadButton: false,
   hideRetryButton: false,
   hidePauseResumeButton: false,
@@ -169,7 +167,6 @@ export default class StatusBar<M extends Meta, B extends Body> extends UIPlugin<
 
       isUploadStarted,
       isAllComplete,
-      isAllErrored,
       isAllPaused,
       isUploadInProgress,
       isSomeGhost,
@@ -209,8 +206,6 @@ export default class StatusBar<M extends Meta, B extends Body> extends UIPlugin<
       totalUploadedSize,
       isAllComplete: false,
       isAllPaused,
-      // @ts-expect-error TODO: remove this in 4.x branch
-      isAllErrored,
       isUploadStarted,
       isUploadInProgress,
       isSomeGhost,
@@ -232,8 +227,6 @@ export default class StatusBar<M extends Meta, B extends Body> extends UIPlugin<
       hidePauseResumeButton: this.opts.hidePauseResumeButton,
       hideCancelButton: this.opts.hideCancelButton,
       hideAfterFinish: this.opts.hideAfterFinish,
-      // ts-expect-error TODO: remove this in 4.x branch
-      isTargetDOMEl: this.isTargetDOMEl,
     })
   }
 

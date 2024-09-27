@@ -7,7 +7,7 @@ import getCanvasDataThatFitsPerfectlyIntoContainer from './utils/getCanvasDataTh
 import getScaleFactorThatRemovesDarkCorners from './utils/getScaleFactorThatRemovesDarkCorners.ts'
 import limitCropboxMovementOnMove from './utils/limitCropboxMovementOnMove.ts'
 import limitCropboxMovementOnResize from './utils/limitCropboxMovementOnResize.ts'
-import type ImageEditor from './ImageEditor.js'
+import type ImageEditor from './ImageEditor.ts'
 
 type Props<M extends Meta, B extends Body> = {
   currentImage: UppyFile<M, B>
@@ -28,9 +28,9 @@ export default class Editor<M extends Meta, B extends Body> extends Component<
   Props<M, B>,
   State
 > {
-  imgElement: HTMLImageElement
+  imgElement!: HTMLImageElement
 
-  cropper: Cropper
+  cropper!: Cropper
 
   constructor(props: Props<M, B>) {
     super(props)

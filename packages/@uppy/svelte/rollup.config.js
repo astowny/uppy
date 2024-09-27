@@ -1,33 +1,19 @@
 import svelte from 'rollup-plugin-svelte'
 import resolve from '@rollup/plugin-node-resolve'
 import preprocess from 'svelte-preprocess'
-import pkg from './package.json'
-
-const name = pkg.name
-  .replace(/^(@\S+\/)?(svelte-)?(\S+)/, '$3')
-  .replace(/^\w/, m => m.toUpperCase())
-  .replace(/-\w/g, m => m[1].toUpperCase())
-
-const globals = {
-  '@uppy/dashboard': 'Dashboard',
-  '@uppy/drag-drop': 'DragDrop',
-  '@uppy/progress-bar': 'ProgressBar',
-  '@uppy/status-bar': 'StatusBar',
-}
+import svelteDts from 'rollup-plugin-svelte-types';
 
 export default {
-  input: 'src/index.js',
+  external: [
+    /^@uppy\//,
+    /node_modules/,
+  ],
+  input: 'src/index.ts',
   output: [
     {
-      file: pkg.module,
+      file: 'lib/index.js',
       format: 'es',
-      globals,
-    },
-    {
-      file: pkg.main,
-      format: 'umd',
-      name,
-      globals,
+      sourcemap: 'inline',
     },
   ],
   plugins: [
@@ -36,7 +22,12 @@ export default {
       preprocess: preprocess(),
     }),
     resolve({
-      resolveOnly: ['svelte'],
+      browser: true,
+      exportConditions: ['svelte'],
+      extensions: ['.svelte']
     }),
+    svelteDts.default({
+      declarationDir: './lib/'
+    })
   ],
 }

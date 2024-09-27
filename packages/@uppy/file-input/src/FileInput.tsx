@@ -14,7 +14,6 @@ export interface FileInputOptions extends UIPluginOptions {
   pretty?: boolean
   inputName?: string
 }
-// Default options, must be kept in sync with @uppy/react/src/FileInput.js.
 const defaultOptions = {
   pretty: true,
   inputName: 'files[]',
@@ -34,7 +33,7 @@ export default class FileInput<M extends Meta, B extends Body> extends UIPlugin<
 > {
   static VERSION = packageJson.version
 
-  input: HTMLFileInputElement | null
+  input: HTMLFileInputElement | null = null
 
   constructor(uppy: Uppy<M, B>, opts?: FileInputOptions) {
     super(uppy, { ...defaultOptions, ...opts })
@@ -97,10 +96,6 @@ export default class FileInput<M extends Meta, B extends Body> extends UIPlugin<
     } satisfies h.JSX.IntrinsicElements['input']['style']
 
     const { restrictions } = this.uppy.opts
-    const accept =
-      restrictions.allowedFileTypes ?
-        restrictions.allowedFileTypes.join(',')
-      : undefined
 
     return (
       <div className="uppy-FileInput-container">
@@ -111,7 +106,7 @@ export default class FileInput<M extends Meta, B extends Body> extends UIPlugin<
           name={this.opts.inputName}
           onChange={this.handleInputChange}
           multiple={restrictions.maxNumberOfFiles !== 1}
-          accept={accept}
+          accept={restrictions.allowedFileTypes?.join(', ')}
           ref={(input) => {
             this.input = input as HTMLFileInputElement
           }}

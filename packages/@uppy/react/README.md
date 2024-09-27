@@ -16,7 +16,8 @@ a versatile file encoding service.
 
 <!-- eslint-disable react/state-in-constructor -->
 
-```js
+```jsx
+/** @jsx React */
 import React from 'react'
 import Uppy from '@uppy/core'
 import { DashboardModal } from '@uppy/react'
@@ -27,10 +28,11 @@ class Example extends React.Component {
   state = { open: false }
 
   render() {
+    const { open } = this.state
     return (
       <DashboardModal
         uppy={uppy}
-        open={this.state.open}
+        open={open}
         onRequestClose={this.handleClose}
       />
     )
@@ -46,8 +48,8 @@ $ npm install @uppy/react
 ```
 
 Alternatively, you can also use this plugin in a pre-built bundle from
-Transloadit’s CDN: Edgly. In that case `Uppy` will attach itself to the global
-`window.Uppy` object. See the
+Transloadit’s CDN: Smart CDN. In that case `Uppy` will attach itself to the
+global `window.Uppy` object. See the
 [main Uppy documentation](https://uppy.io/docs/#Installation) for instructions.
 
 ## Documentation

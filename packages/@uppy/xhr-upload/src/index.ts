@@ -10,7 +10,7 @@ import {
 } from '@uppy/utils/lib/RateLimitedQueue'
 import NetworkError from '@uppy/utils/lib/NetworkError'
 import isNetworkError from '@uppy/utils/lib/isNetworkError'
-import { fetcher } from '@uppy/utils/lib/fetcher'
+import { fetcher, type FetcherOptions } from '@uppy/utils/lib/fetcher'
 import {
   filterNonFailedFiles,
   filterFilesToEmitUploadStarted,
@@ -19,31 +19,30 @@ import {
 // @ts-ignore We don't want TS to generate types for the package.json
 import type { Meta, Body, UppyFile } from '@uppy/utils/lib/UppyFile'
 import type { State, Uppy } from '@uppy/core'
+import getAllowedMetaFields from '@uppy/utils/lib/getAllowedMetaFields'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore We don't want TS to generate types for the package.json
 import packageJson from '../package.json'
 import locale from './locale.ts'
 
-declare module '@uppy/utils/lib/UppyFile' {
-  // eslint-disable-next-line no-shadow, @typescript-eslint/no-unused-vars
-  export interface UppyFile<M extends Meta, B extends Body> {
-    // TODO: figure out what else is in this type
-    xhrUpload?: { headers: Record<string, string> }
-  }
-}
-
-declare module '@uppy/core' {
-  // eslint-disable-next-line no-shadow, @typescript-eslint/no-unused-vars
-  export interface State<M extends Meta, B extends Body> {
-    // TODO: figure out what else is in this type
-    xhrUpload?: { headers: Record<string, string> }
-  }
-}
-
 export interface XhrUploadOpts<M extends Meta, B extends Body>
   extends PluginOpts {
   endpoint: string
-  method?: 'post' | 'put'
+  method?:
+    | 'GET'
+    | 'HEAD'
+    | 'POST'
+    | 'PUT'
+    | 'DELETE'
+    | 'OPTIONS'
+    | 'PATCH'
+    | 'delete'
+    | 'get'
+    | 'head'
+    | 'options'
+    | 'post'
+    | 'put'
+    | string
   formData?: boolean
   fieldName?: string
   headers?:
@@ -53,16 +52,33 @@ export interface XhrUploadOpts<M extends Meta, B extends Body>
   limit?: number
   responseType?: XMLHttpRequestResponseType
   withCredentials?: boolean
-  validateStatus?: (
-    status: number,
-    body: string,
+  onBeforeRequest?: (
     xhr: XMLHttpRequest,
-  ) => boolean
-  getResponseData?: (body: string, xhr: XMLHttpRequest) => B
-  getResponseError?: (body: string, xhr: XMLHttpRequest) => Error | NetworkError
-  allowedMetaFields?: string[] | null
+    retryCount: number,
+    /** The files to be uploaded. When `bundle` is `false` only one file is in the array.  */
+    files: UppyFile<M, B>[],
+  ) => void | Promise<void>
+  shouldRetry?: FetcherOptions['shouldRetry']
+  onAfterResponse?: FetcherOptions['onAfterResponse']
+  getResponseData?: (xhr: XMLHttpRequest) => B | Promise<B>
+  allowedMetaFields?: boolean | string[]
   bundle?: boolean
-  responseUrlFieldName?: string
+}
+
+export type { XhrUploadOpts as XHRUploadOptions }
+
+declare module '@uppy/utils/lib/UppyFile' {
+  // eslint-disable-next-line no-shadow
+  export interface UppyFile<M extends Meta, B extends Body> {
+    xhrUpload?: XhrUploadOpts<M, B>
+  }
+}
+
+declare module '@uppy/core' {
+  // eslint-disable-next-line no-shadow
+  export interface State<M extends Meta, B extends Body> {
+    xhrUpload?: XhrUploadOpts<M, B>
+  }
 }
 
 function buildResponseError(
@@ -104,38 +120,13 @@ const defaultOptions = {
   formData: true,
   fieldName: 'file',
   method: 'post',
-  allowedMetaFields: null,
-  responseUrlFieldName: 'url',
+  allowedMetaFields: true,
   bundle: false,
   headers: {},
   timeout: 30 * 1000,
   limit: 5,
   withCredentials: false,
   responseType: '',
-  getResponseData(responseText) {
-    let parsedResponse = {}
-    try {
-      parsedResponse = JSON.parse(responseText)
-    } catch {
-      // ignore
-    }
-    // We don't have access to the B (Body) generic here
-    // so we have to cast it to any. The user facing types
-    // remain correct, this is only to please the merging of default options.
-    return parsedResponse as any
-  },
-  getResponseError(_, response) {
-    let error = new Error('Upload error')
-
-    if (isNetworkError(response)) {
-      error = new NetworkError(error, response)
-    }
-
-    return error
-  },
-  validateStatus(status) {
-    return status >= 200 && status < 300
-  },
 } satisfies Partial<XhrUploadOpts<any, any>>
 
 type Opts<M extends Meta, B extends Body> = DefinePluginOpts<
@@ -208,13 +199,18 @@ export default class XHRUpload<
      */
     this.#getFetcher = (files: UppyFile<M, B>[]) => {
       return async (
-        url: Parameters<typeof fetcher>[0],
-        options: NonNullable<Parameters<typeof fetcher>[1]>,
+        url: string,
+        options: Omit<FetcherOptions, 'onBeforeRequest'> & {
+          onBeforeRequest?: Opts<M, B>['onBeforeRequest']
+        },
       ) => {
         try {
           const res = await fetcher(url, {
             ...options,
-            method: options?.method?.toUpperCase(),
+            onBeforeRequest: (xhr, retryCount) =>
+              this.opts.onBeforeRequest?.(xhr, retryCount, files),
+            shouldRetry: this.opts.shouldRetry,
+            onAfterResponse: this.opts.onAfterResponse,
             onTimeout: (timeout) => {
               const seconds = Math.ceil(timeout / 1000)
               const error = new Error(this.i18n('uploadStalled', { seconds }))
@@ -224,9 +220,7 @@ export default class XHRUpload<
               if (event.lengthComputable) {
                 for (const file of files) {
                   this.uppy.emit('upload-progress', file, {
-                    // TODO: do not send `uploader` in next major
-                    // @ts-expect-error we can't type this and we should remove it
-                    uploader: this,
+                    uploadStarted: file.progress.uploadStarted ?? 0,
                     bytesUploaded: (event.loaded / event.total) * file.size!,
                     bytesTotal: file.size,
                   })
@@ -235,14 +229,17 @@ export default class XHRUpload<
             },
           })
 
-          if (!this.opts.validateStatus(res.status, res.responseText, res)) {
-            throw new NetworkError(res.statusText, res)
+          let body = await this.opts.getResponseData?.(res)
+          try {
+            body ??= JSON.parse(res.responseText) as B
+          } catch (cause) {
+            throw new Error(
+              '@uppy/xhr-upload expects a JSON response (with a `url` property). To parse non-JSON responses, use `getResponseData` to turn your response into JSON.',
+              { cause },
+            )
           }
 
-          const body = this.opts.getResponseData(res.responseText, res)
-          const uploadURL = body?.[this.opts.responseUrlFieldName] as
-            | string
-            | undefined
+          const uploadURL = typeof body?.url === 'string' ? body.url : undefined
 
           for (const file of files) {
             this.uppy.emit('upload-success', file, {
@@ -259,12 +256,13 @@ export default class XHRUpload<
           }
           if (error instanceof NetworkError) {
             const request = error.request!
-            const customError = buildResponseError(
-              request,
-              this.opts.getResponseError(request.responseText, request),
-            )
+
             for (const file of files) {
-              this.uppy.emit('upload-error', file, customError)
+              this.uppy.emit(
+                'upload-error',
+                file,
+                buildResponseError(request, error),
+              )
             }
           }
 
@@ -312,10 +310,7 @@ export default class XHRUpload<
     meta: State<M, B>['meta'],
     opts: Opts<M, B>,
   ): void {
-    const allowedMetaFields =
-      Array.isArray(opts.allowedMetaFields) ?
-        opts.allowedMetaFields
-      : Object.keys(meta) // Send along all fields by default.
+    const allowedMetaFields = getAllowedMetaFields(opts.allowedMetaFields, meta)
 
     allowedMetaFields.forEach((item) => {
       const value = meta[item]
@@ -382,10 +377,8 @@ export default class XHRUpload<
     })
 
     events.onFileRemove(file.id, () => controller.abort())
-    events.onCancelAll(file.id, ({ reason }) => {
-      if (reason === 'user') {
-        controller.abort()
-      }
+    events.onCancelAll(file.id, () => {
+      controller.abort()
     })
 
     try {
@@ -439,11 +432,10 @@ export default class XHRUpload<
 
   #getCompanionClientArgs(file: UppyFile<M, B>) {
     const opts = this.getOptions(file)
-    const allowedMetaFields =
-      Array.isArray(opts.allowedMetaFields) ?
-        opts.allowedMetaFields
-        // Send along all fields by default.
-      : Object.keys(file.meta)
+    const allowedMetaFields = getAllowedMetaFields(
+      opts.allowedMetaFields,
+      file.meta,
+    )
     return {
       ...file.remote?.body,
       protocol: 'multipart',

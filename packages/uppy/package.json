@@ -1,16 +1,16 @@
 {
   "name": "uppy",
   "description": "Extensible JavaScript file upload widget with support for drag&drop, resumable uploads, previews, restrictions, file processing/encoding, remote providers like Instagram, Dropbox, Google Drive, S3 and more :dog:",
-  "version": "3.26.4",
+  "version": "4.4.0",
   "license": "MIT",
   "files": [
     "dist"
   ],
-  "main": "index.mjs",
-  "module": "index.mjs",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "type": "module",
   "unpkg": "dist/uppy.min.js",
   "style": "dist/uppy.min.css",
-  "types": "types/index.d.ts",
   "keywords": [
     "file uploader",
     "drag-drop",
@@ -36,7 +36,6 @@
   "dependencies": {
     "@uppy/audio": "workspace:^",
     "@uppy/aws-s3": "workspace:^",
-    "@uppy/aws-s3-multipart": "workspace:^",
     "@uppy/box": "workspace:^",
     "@uppy/companion-client": "workspace:^",
     "@uppy/compressor": "workspace:^",
@@ -50,6 +49,7 @@
     "@uppy/form": "workspace:^",
     "@uppy/golden-retriever": "workspace:^",
     "@uppy/google-drive": "workspace:^",
+    "@uppy/google-photos": "workspace:^",
     "@uppy/image-editor": "workspace:^",
     "@uppy/informer": "workspace:^",
     "@uppy/instagram": "workspace:^",
@@ -70,13 +70,5 @@
     "@uppy/webcam": "workspace:^",
     "@uppy/xhr-upload": "workspace:^",
     "@uppy/zoom": "workspace:^"
-  },
-  "devDependencies": {
-    "abortcontroller-polyfill": "^1.7.3",
-    "core-js": "~3.24.0",
-    "md-gum-polyfill": "^1.0.0",
-    "regenerator-runtime": "0.13.9",
-    "resize-observer-polyfill": "^1.5.1",
-    "whatwg-fetch": "^3.6.2"
   }
 }

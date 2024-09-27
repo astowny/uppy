@@ -9,8 +9,7 @@
 
 Droppable zone UI for Uppy. Drag and drop files into it to upload.
 
-**[Read the docs](https://uppy.io/docs/dragdrop)** |
-**[Try it](https://uppy.io/examples/dragdrop/)**
+**[Read the docs](https://uppy.io/docs/drag-drop/)**
 
 Uppy is being developed by the folks at [Transloadit](https://transloadit.com),
 a versatile file encoding service.
@@ -34,14 +33,14 @@ $ npm install @uppy/drag-drop
 ```
 
 Alternatively, you can also use this plugin in a pre-built bundle from
-Transloadit’s CDN: Edgly. In that case `Uppy` will attach itself to the global
-`window.Uppy` object. See the
+Transloadit’s CDN: Smart CDN. In that case `Uppy` will attach itself to the
+global `window.Uppy` object. See the
 [main Uppy documentation](https://uppy.io/docs/#Installation) for instructions.
 
 ## Documentation
 
 Documentation for this plugin can be found on the
-[Uppy website](https://uppy.io/docs/dragdrop).
+[Uppy website](https://uppy.io/docs/drag-drop/).
 
 ## License
 

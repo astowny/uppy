@@ -22,8 +22,9 @@ OAuth.
 ## When should I use it?
 
 If you want to let users download files from [Box][], [Dropbox][], [Facebook][],
-[Google Drive][googledrive], [Instagram][], [OneDrive][], [Unsplash][], [Import
-from URL][url], or [Zoom][] — you need Companion.
+[Google Drive][googledrive], [Google Photos][googlephotos], [Instagram][],
+[OneDrive][], [Unsplash][], [Import from URL][url], or [Zoom][] — you need
+Companion.
 
 Companion supports the same [uploaders](/docs/guides/choosing-uploader) as Uppy:
 [Tus](/docs/tus), [AWS S3](/docs/aws-s3), and [regular multipart](/docs/tus).
@@ -65,6 +66,42 @@ Downloading and uploading files through Companion doesn’t count towards your
 files to arrive at Transloadit servers, much like Uppy.
 
 :::
+
+To do so each provider plugin must be configured with Transloadit’s Companion
+URLs:
+
+```js
+import { COMPANION_URL, COMPANION_ALLOWED_HOSTS } from '@uppy/transloadit';
+import Dropbox from '@uppy/dropbox';
+
+uppy.use(Dropbox, {
+	companionUrl: COMPANION_URL,
+	companionAllowedHosts: COMPANION_ALLOWED_HOSTS,
+});
+```
+
+You may also hit rate limits, because the OAuth application is shared between
+everyone using Transloadit.
+
+To solve that, you can use your own OAuth keys with Transloadit’s hosted
+Companion servers by using Transloadit Template Credentials. [Create a Template
+Credential][template-credentials] on the Transloadit site. Select “Companion
+OAuth” for the service, and enter the key and secret for the provider you want
+to use. Then you can pass the name of the new credentials to that provider:
+
+```js
+import { COMPANION_URL, COMPANION_ALLOWED_HOSTS } from '@uppy/transloadit';
+import Dropbox from '@uppy/dropbox';
+
+uppy.use(Dropbox, {
+	companionUrl: COMPANION_URL,
+	companionAllowedHosts: COMPANION_ALLOWED_HOSTS,
+	companionKeysParams: {
+		key: 'YOUR_TRANSLOADIT_API_KEY',
+		credentialsName: 'my_companion_dropbox_creds',
+	},
+});
+```
 
 ## Installation & use
 
@@ -283,13 +320,13 @@ const options = {
 		endpoint: 'https://{service}.{region}.amazonaws.com',
 		conditions: [],
 		useAccelerateEndpoint: false,
-		getKey: (req, filename) => `${crypto.randomUUID()}-${filename}`,
+		getKey: ({ filename }) => `${crypto.randomUUID()}-${filename}`,
 		expires: 800, // seconds
 	},
 	allowLocalUrls: false,
 	logClientVersion: true,
 	periodicPingUrls: [],
-	streamingUpload: false,
+	streamingUpload: true,
 	clientSocketConnectTimeout: 60000,
 	metrics: true,
 };
@@ -372,20 +409,17 @@ using many instances. See [How to scale Companion](#how-to-scale-companion).
 #### `COMPANION_REDIS_EXPRESS_SESSION_PREFIX`
 
 Set a custom prefix for redis keys created by
-[connect-redis](https://github.com/tj/connect-redis). Defaults to `sess:`.
-Sessions are used for storing authentication state and for allowing thumbnails
-to be loaded by the browser via Companion. You might want to change this because
-if you run a redis with many different apps in the same redis server, it’s hard
-to know where `sess:` comes from and it might collide with other apps. **Note:**
-in the future, we plan and changing the default to `companion:` and possibly
-remove this option. This is a standalone-only option. See also
-`COMPANION_REDIS_PUBSUB_SCOPE`.
+[connect-redis](https://github.com/tj/connect-redis). Defaults to
+`companion-session:`. Sessions are used for storing authentication state and for
+allowing thumbnails to be loaded by the browser via Companion and for OAuth2.
+See also `COMPANION_REDIS_PUBSUB_SCOPE`.
 
-#### `redisOptions`
+#### `redisOptions` `COMPANION_REDIS_OPTIONS`
 
 An object of
-[options supported by redis client](https://www.npmjs.com/package/redis#options-object-properties).
-This option can be used in place of `redisUrl`.
+[options supported by the `ioredis` client](https://github.com/redis/ioredis).
+See also
+[`RedisOptions`](https://github.com/redis/ioredis/blob/af832752040e616daf51621681bcb40cab965a9b/lib/redis/RedisOptions.ts#L8).
 
 #### `redisPubSubScope` `COMPANION_REDIS_PUBSUB_SCOPE`
 
@@ -435,15 +469,16 @@ the secret, nothing else.
 
 :::
 
-| Service      | Key         | Environment variables                                                                                                                                                                                                                  |
-| ------------ | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Box          | `box`       | `COMPANION_BOX_KEY`, `COMPANION_BOX_SECRET`, `COMPANION_BOX_SECRET_FILE`                                                                                                                                                               |
-| Dropbox      | `dropbox`   | `COMPANION_DROPBOX_KEY`, `COMPANION_DROPBOX_SECRET`, `COMPANION_DROPBOX_SECRET_FILE`                                                                                                                                                   |
-| Facebook     | `facebook`  | `COMPANION_FACEBOOK_KEY`, `COMPANION_FACEBOOK_SECRET`, `COMPANION_FACEBOOK_SECRET_FILE`                                                                                                                                                |
-| Google Drive | `drive`     | `COMPANION_GOOGLE_KEY`, `COMPANION_GOOGLE_SECRET`, `COMPANION_GOOGLE_SECRET_FILE`                                                                                                                                                      |
-| Instagram    | `instagram` | `COMPANION_INSTAGRAM_KEY`, `COMPANION_INSTAGRAM_SECRET`, `COMPANION_INSTAGRAM_SECRET_FILE`                                                                                                                                             |
-| OneDrive     | `onedrive`  | `COMPANION_ONEDRIVE_KEY`, `COMPANION_ONEDRIVE_SECRET`, `COMPANION_ONEDRIVE_SECRET_FILE`, `COMPANION_ONEDRIVE_DOMAIN_VALIDATION` (Settings this variable to `true` enables a route that can be used to validate your app with OneDrive) |
-| Zoom         | `zoom`      | `COMPANION_ZOOM_KEY`, `COMPANION_ZOOM_SECRET`, `COMPANION_ZOOM_SECRET_FILE`, `COMPANION_ZOOM_VERIFICATION_TOKEN`                                                                                                                       |
+| Service       | Key            | Environment variables                                                                                                                                                                                                                  |
+| ------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Box           | `box`          | `COMPANION_BOX_KEY`, `COMPANION_BOX_SECRET`, `COMPANION_BOX_SECRET_FILE`                                                                                                                                                               |
+| Dropbox       | `dropbox`      | `COMPANION_DROPBOX_KEY`, `COMPANION_DROPBOX_SECRET`, `COMPANION_DROPBOX_SECRET_FILE`                                                                                                                                                   |
+| Facebook      | `facebook`     | `COMPANION_FACEBOOK_KEY`, `COMPANION_FACEBOOK_SECRET`, `COMPANION_FACEBOOK_SECRET_FILE`                                                                                                                                                |
+| Google Drive  | `drive`        | `COMPANION_GOOGLE_KEY`, `COMPANION_GOOGLE_SECRET`, `COMPANION_GOOGLE_SECRET_FILE`                                                                                                                                                      |
+| Google Photos | `googlephotos` | `COMPANION_GOOGLE_KEY`, `COMPANION_GOOGLE_SECRET`, `COMPANION_GOOGLE_SECRET_FILE`                                                                                                                                                      |
+| Instagram     | `instagram`    | `COMPANION_INSTAGRAM_KEY`, `COMPANION_INSTAGRAM_SECRET`, `COMPANION_INSTAGRAM_SECRET_FILE`                                                                                                                                             |
+| OneDrive      | `onedrive`     | `COMPANION_ONEDRIVE_KEY`, `COMPANION_ONEDRIVE_SECRET`, `COMPANION_ONEDRIVE_SECRET_FILE`, `COMPANION_ONEDRIVE_DOMAIN_VALIDATION` (Settings this variable to `true` enables a route that can be used to validate your app with OneDrive) |
+| Zoom          | `zoom`         | `COMPANION_ZOOM_KEY`, `COMPANION_ZOOM_SECRET`, `COMPANION_ZOOM_SECRET_FILE`, `COMPANION_ZOOM_VERIFICATION_TOKEN`                                                                                                                       |
 
 #### `s3`
 
@@ -476,13 +511,20 @@ from the AWS SDK.
 
 The name of the bucket to store uploaded files in.
 
-It can be function that returns the name of the bucket as a `string` and takes
-the following arguments:
+A `string` or function that returns the name of the bucket as a `string` and
+takes one argument which is an object with the following properties:
 
-- [`http.IncomingMessage`][], the HTTP request (will be `null` for remote
-  uploads)
-- metadata provided by the user for the file (will be `undefined` for local
-  uploads)
+- `filename`, the original name of the uploaded file;
+- `metadata` provided by the user for the file (will only be provided during the
+  initial calls for each uploaded files, otherwise it will be `undefined`).
+- `req`, Express.js `Request` object. Do not use any Companion internals from
+  the req object, as these might change in any minor version of Companion.
+
+#### `s3.forcePathStyle` `COMPANION_AWS_FORCE_PATH_STYLE`
+
+This adds support for setting the S3 client’s `forcePathStyle` option. That is
+necessary to use Uppy/Companion alongside localstack in development
+environments. **Default**: `false`.
 
 ##### `s3.region` `COMPANION_AWS_REGION`
 
@@ -511,18 +553,16 @@ expected, please
 [open an issue on the Uppy repository](https://github.com/transloadit/uppy/issues/new)
 so we can document it here.
 
-##### `s3.getKey(req, filename, metadata)`
+##### `s3.getKey({ filename, metadata, req })`
 
 Get the key name for a file. The key is the file path to which the file will be
 uploaded in your bucket. This option should be a function receiving three
 arguments:
 
-- `req` [`http.IncomingMessage`][], the HTTP request, for _regular_ S3 uploads
-  using the `@uppy/aws-s3` plugin. This parameter is _not_ available for
-  multipart uploads using the `@uppy/aws-s3` or `@uppy/aws-s3-multipart`
-  plugins. This parameter is `null` for remote uploads.
 - `filename`, the original name of the uploaded file;
 - `metadata`, user-provided metadata for the file.
+- `req`, Express.js `Request` object. Do not use any Companion internals from
+  the req object, as these might change in any minor version of Companion.
 
 This function should return a string `key`. The `req` parameter can be used to
 upload to a user-specific folder in your bucket, for example:
@@ -533,7 +573,7 @@ app.use(
 	uppy.app({
 		providerOptions: {
 			s3: {
-				getKey: (req, filename, metadata) => `${req.user.id}/${filename}`,
+				getKey: ({ req, filename, metadata }) => `${req.user.id}/${filename}`,
 				/* auth options */
 			},
 		},
@@ -549,7 +589,7 @@ app.use(
 	uppy.app({
 		providerOptions: {
 			s3: {
-				getKey: (req, filename, metadata) => filename,
+				getKey: ({ filename, metadata }) => filename,
 			},
 		},
 	}),
@@ -596,9 +636,7 @@ Prometheus metrics (by default metrics are enabled.)
 A boolean flag to tell Companion whether to enable streaming uploads. If
 enabled, it will lead to _faster uploads_ because companion will start uploading
 at the same time as downloading using `stream.pipe`. If `false`, files will be
-fully downloaded first, then uploaded. Defaults to `false`, but we recommended
-enabling it, especially if you’re expecting to upload large files. In future
-versions the default might change to `true`.
+fully downloaded first, then uploaded. Defaults to `true`.
 
 #### `maxFileSize` `COMPANION_MAX_FILE_SIZE`
 
@@ -631,16 +669,40 @@ risk.**
 
 :::
 
-#### `corsOrigins` `COMPANION_CLIENT_ORIGINS`
+#### `corsOrigins` (required)
 
-Allowed CORS Origins (default `true`). Passed as the `origin` option in
-[cors](https://github.com/expressjs/cors#configuration-options))
+Allowed CORS Origins. Passed as the `origin` option in
+[cors](https://github.com/expressjs/cors#configuration-options).
 
-#### `COMPANION_CLIENT_ORIGINS_REGEX`
+Note this is used for both CORS’ `Access-Control-Allow-Origin` header, and for
+the
+[`targetOrigin`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#targetorigin)
+for `postMessage` calls in the context of OAuth.
 
-Like COMPANION_CLIENT_ORIGINS, but allows a single regex instead.
-`COMPANION_CLIENT_ORIGINS` will be ignored if this is used. This is a
-standalone-only option.
+Setting it to `true` treats any origin as a trusted one, making it easier to
+impersonate your brand. Setting it to `false` disables cross-origin support, use
+this if you’re serving Companion and Uppy from the same domain name.
+
+##### `COMPANION_CLIENT_ORIGINS`
+
+Stand-alone alternative to the `corsOrigins` option. A comma-separated string of
+origins, or `'true'` (which will be interpreted as the boolean value `true`), or
+`'false'` (which will be interpreted as the boolean value `false`).
+`COMPANION_CLIENT_ORIGINS_REGEX` will be ignored if this option is used.
+
+##### `COMPANION_CLIENT_ORIGINS_REGEX`
+
+:::note
+
+In most cases, you should not be using a regex, and instead provide the list of
+accepted origins to `COMPANION_CLIENT_ORIGINS`. If you have to use this option,
+have in mind that this regex will be used to parse unfiltered user input, so
+make sure you’re validating the entirety of the string.
+
+:::
+
+Stand-alone alternative to the `corsOrigins` option. Like
+`COMPANION_CLIENT_ORIGINS`, but allows a single regex instead.
 
 #### `chunkSize` `COMPANION_CHUNK_SIZE`
 
@@ -654,8 +716,8 @@ as well as
 
 #### `enableUrlEndpoint` `COMPANION_ENABLE_URL_ENDPOINT`
 
-Set this to `false` to disable the
-[URL functionalily](https://uppy.io/docs/url/). Default: `true`.
+Set this to `true` to enable the [URL functionalily](https://uppy.io/docs/url/).
+Default: `false`.
 
 ### Events
 
@@ -909,18 +971,19 @@ See also
    ```
 
 This would get the Companion instance running on `http://localhost:3020`. It
-uses [nodemon](https://github.com/remy/nodemon) so it will automatically restart
-when files are changed.
+uses [`node --watch`](https://nodejs.org/api/cli.html#--watch) so it will
+automatically restart when files are changed.
 
-[`http.incomingmessage`]:
-	https://nodejs.org/api/http.html#class-httpincomingmessage
 [box]: /docs/box
 [dropbox]: /docs/dropbox
 [facebook]: /docs/facebook
 [googledrive]: /docs/google-drive
+[googlephotos]: /docs/google-photos
 [instagram]: /docs/instagram
 [onedrive]: /docs/onedrive
 [unsplash]: /docs/unsplash
 [url]: /docs/url
 [zoom]: /docs/zoom
 [transloadit]: https://transloadit.com
+[template-credentials]:
+	https://transloadit.com/docs/#how-to-create-template-credentials
