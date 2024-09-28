@@ -102,6 +102,7 @@ fr_FR.strings = {
   pause: 'Pause',
   pauseUpload: 'Mettre en pause le téléversement',
   paused: 'En pause',
+  pluginNameUrl: 'Liens',
   poweredBy: 'Propulsé par %{uppy}',
   processingXFiles: {
     '0': 'Traitement de %{smart_count} fichier',
