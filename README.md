@@ -1,5 +1,15 @@
 # [Uppy](https://uppy.io) [![uppy on npm](https://img.shields.io/npm/v/uppy.svg?style=flat-square)](https://www.npmjs.com/package/uppy)
 
+# Notes to dev
+
+Pour mettre à jour Uppy, coder dans packages/@uppy et puis faire yarn build dans
+le dossier root then npm publish dans package/uppy. Il a y possibilité de tester
+avec examples/aws-companion. Ne pas oublier de monter la version car on ne peut
+pas mettre une même version sur npm et il faut le mettre en public : npm publish
+--access public
+
+##
+
 <img src="https://uppy.io/img/logo.svg" width="120" alt="Uppy logo: a smiling puppy above a pink upwards arrow" align="right">
 
 Uppy is a sleek, modular JavaScript file uploader that integrates seamlessly
