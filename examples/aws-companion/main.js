@@ -10,7 +10,7 @@ import '@uppy/dashboard/dist/style.css'
 import '@uppy/webcam/dist/style.css'
 import '@uppy/url/dist/style.css'
 
-const COMPANION_URL = 'http://companion.translia.tech'
+const COMPANION_URL = 'http://localhost:3020'
 const uppy = new Uppy({
   debug: true,
   autoProceed: true,
@@ -36,7 +36,7 @@ uppy.use(Url, {
   title: 'Liens',
 })
 uppy.use(AwsS3, {
-  endpoint: 'http://localhost:3020',
+  endpoint: COMPANION_URL,
   shouldUseMultipart: (file) => file.size > 100 * 2 ** 20,
 })
 
@@ -67,12 +67,18 @@ uppy.use(AwsS3, {
 //   console.log(a);
 // }
 
-// uppy.addPostProcessor(async (fileIds) => { 
-//   const file = await uppy.getFile(fileIds[0])
-//   console.log(file);
-//   const { key } = file.meta
-//   console.log(key);
-//   const presignedUrl = await getPresignedGetURL(key)
-//   console.log(presignedUrl); 
+uppy.addPostProcessor(async (fileIds) => { 
+  const file = await uppy.getFile(fileIds[0])
+  console.log(file);
+  const key = file.uploadURL.split('/').pop()
+  console.log(key);
+  const uploadedEEvent = new CustomEvent('uploaded-file', {
+    detail: {
+    key
+    }
+  })
+  document.dispatchEvent(uploadedEEvent)
+  // const presignedUrl = await getPresignedGetURL(key)
+  // console.log(presignedUrl); 
   
-// })
+})

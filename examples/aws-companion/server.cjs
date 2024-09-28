@@ -20,7 +20,7 @@ const DATA_DIR = path.join(__dirname, 'tmp')
 
 app.use(require('cors')({
   origin: '*',
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
   credentials: true,
 }))
 app.use(require('cookie-parser')())
@@ -56,7 +56,7 @@ const options = {
     },
   },
   s3: {
-    getKey: ({ filename }) => `${crypto.randomUUID()}-${filename}`,
+    getKey: (req) => `${crypto.randomUUID()}-${req.filename}`,
     key: process.env.COMPANION_AWS_KEY,
     secret: process.env.COMPANION_AWS_SECRET,
     bucket: process.env.COMPANION_AWS_BUCKET,
