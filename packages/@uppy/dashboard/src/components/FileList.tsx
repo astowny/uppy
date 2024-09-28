@@ -139,9 +139,9 @@ export default function FileList<M extends Meta, B extends Body>({
     </div>
   )
 
-  if (isSingleFile) {
-    return <div class="uppy-Dashboard-files">{renderRow(rows[0])}</div>
-  }
+  // if (isSingleFile) {
+  //   return <div class="uppy-Dashboard-files">{renderRow(rows[0])}</div>
+  // }
 
   return (
     <VirtualList

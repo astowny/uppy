@@ -29,7 +29,9 @@ uppy.use(RemoteSources, {
 uppy.use(Dashboard, {
   inline: true,
   target: 'body',
-  proudlyDisplayPoweredByUppy: false
+  proudlyDisplayPoweredByUppy: false,
+  height: 200,
+  width: 245
 })
 uppy.use(Url, {
   companionUrl: COMPANION_URL,
