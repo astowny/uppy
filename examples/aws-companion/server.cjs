@@ -3,14 +3,14 @@ const path = require('node:path')
 const crypto = require('node:crypto')
 const companion = require('@uppy/companion')
 
-const deepgramUrl = 'https://api.deepgram.com/v1/listen';
-const apiKey = 'YOUR_API_KEY'; // Remplacez par votre clé API
+// const deepgramUrl = 'https://api.deepgram.com/v1/listen';
+// const apiKey = 'YOUR_API_KEY'; // Remplacez par votre clé API
 
-const headers = {
-  'Accept': 'application/json',
-  'Authorization': `Token ${apiKey}`,
-  'Content-Type': 'application/json',
-};
+// const headers = {
+//   'Accept': 'application/json',
+//   'Authorization': `Token ${apiKey}`,
+//   'Content-Type': 'application/json',
+// };
 
 
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
@@ -64,7 +64,7 @@ const options = {
     endpoint: process.env.COMPANION_AWS_ENDPOINT,
     forcePathStyle: process.env.COMPANION_AWS_FORCE_PATH_STYLE === 'true',
   },
-  server: { host: 'localhost:3020' },
+  server: { host: process.env.COMPANION_DOMAIN },
   filePath: DATA_DIR,
   secret: 'blah blah',
   debug: true,
@@ -93,53 +93,53 @@ app.get('/', (req, res) => res.send('Hello World!'))
 // })
 
 // get presigned url from wasabi
-app.post('/get-presigned-url', async (req, res) => {
-  try {
-    const { key, action } = req.body;
+// app.post('/get-presigned-url', async (req, res) => {
+//   try {
+//     const { key, action } = req.body;
 
-    const response = await fetch('https://lgq6d6awbqy2zj6m5ayy4q5cri0bmhtk.lambda-url.eu-west-3.on.aws/', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-      body: JSON.stringify({
-        key, // or just `key,` in modern JS syntax
-        action
-      })
-    });
+//     const response = await fetch('https://lgq6d6awbqy2zj6m5ayy4q5cri0bmhtk.lambda-url.eu-west-3.on.aws/', {
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       method: 'POST',
+//       body: JSON.stringify({
+//         key, // or just `key,` in modern JS syntax
+//         action
+//       })
+//     });
 
-    const result = await response.json();
+//     const result = await response.json();
 
-    res.json(result); // Send the fetched result to the client
-  } catch (error) {
-    console.error('Error fetching presigned URL:', error);
-    res.status(500).json({ error: 'Failed to fetch presigned URL' });
-  }
-})
+//     res.json(result); // Send the fetched result to the client
+//   } catch (error) {
+//     console.error('Error fetching presigned URL:', error);
+//     res.status(500).json({ error: 'Failed to fetch presigned URL' });
+//   }
+// })
 
-app.post('/transcribe', async (req, res) => {
-  const audioUrl = req.body.url;
+// app.post('/transcribe', async (req, res) => {
+//   const audioUrl = req.body.url;
 
-  const data = {
-    url: audioUrl,
-  };
+//   const data = {
+//     url: audioUrl,
+//   };
 
-  try {
-    const response = await fetch(deepgramUrl, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(data),
-    });
+//   try {
+//     const response = await fetch(deepgramUrl, {
+//       method: 'POST',
+//       headers,
+//       body: JSON.stringify(data),
+//     });
 
-    const transcription = await response.json();
+//     const transcription = await response.json();
     
-    // Retourner la transcription au client
-    res.status(200).json(transcription);
-  } catch (error) {
-    console.error('Erreur:', error);
-    res.status(500).json({ message: 'Erreur lors de la transcription.' });
-  }
-});
+//     // Retourner la transcription au client
+//     res.status(200).json(transcription);
+//   } catch (error) {
+//     console.error('Erreur:', error);
+//     res.status(500).json({ message: 'Erreur lors de la transcription.' });
+//   }
+// });
 
 
 // Create the data directory here for the sake of the example.

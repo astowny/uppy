@@ -38,7 +38,7 @@ class UrlUI extends Component<UrlUIProps> {
     try {
       await addFile(preparedValue)
     } catch (error) {
-      console.log('error in #handleSubmit', error)
+      // console.log('error in #handleSubmit', error)
     }
   }
 

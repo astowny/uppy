@@ -10,7 +10,7 @@ import '@uppy/dashboard/dist/style.css'
 import '@uppy/webcam/dist/style.css'
 import '@uppy/url/dist/style.css'
 
-const COMPANION_URL = 'http://localhost:3020'
+const COMPANION_URL = "https://companion.translia.tech"
 const uppy = new Uppy({
   debug: true,
   autoProceed: true,
@@ -30,7 +30,7 @@ uppy.use(Dashboard, {
   inline: true,
   target: 'body',
   proudlyDisplayPoweredByUppy: false,
-  height: 200,
+  height: 400,
   width: 245
 })
 uppy.use(Url, {

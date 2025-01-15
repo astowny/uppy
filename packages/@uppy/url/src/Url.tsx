@@ -92,7 +92,7 @@ async function transformYouTubeUrl(
     }).then((resp) => resp.json())
     return response
   } catch (error) {
-    console.error('error', error)
+    // console.error('error', error)
     return error
   }
 }
