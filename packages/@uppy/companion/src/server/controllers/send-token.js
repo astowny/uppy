@@ -50,6 +50,7 @@ const htmlContent = (token, origin) => {
  * @param {import('express').Request} req
  * @param {import('express').Response} res
  * @param {import('express').NextFunction} next
+ * @returns {Promise<any>|void|any}
  */
 module.exports = function sendToken(req, res, next) {
   // @ts-expect-error untyped
