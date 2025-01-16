@@ -1,8 +1,13 @@
 import { h, type ComponentChild } from 'preact'
-import { UIPlugin, type UIPluginOptions } from '@uppy/core'
-import type { Uppy, State } from '@uppy/core/lib/Uppy.js'
-import type { Body, Meta } from '@uppy/utils/lib/UppyFile'
-import type { DefinePluginOpts } from '@uppy/core/lib/BasePlugin.js'
+import { UIPlugin } from '@uppy/core'
+import type {
+  Uppy,
+  State,
+  UIPluginOptions,
+  Body,
+  Meta,
+  DefinePluginOpts,
+} from '@uppy/core'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore We don't want TS to generate types for the package.json
@@ -40,10 +45,11 @@ export default class ProgressBar<
   }
 
   render(state: State<M, B>): ComponentChild {
-    const progress = state.totalProgress || 0
+    const { totalProgress } = state
     // before starting and after finish should be hidden if specified in the options
     const isHidden =
-      (progress === 0 || progress === 100) && this.opts.hideAfterFinish
+      (totalProgress === 0 || totalProgress === 100) &&
+      this.opts.hideAfterFinish
     return (
       <div
         className="uppy uppy-ProgressBar"
@@ -52,9 +58,9 @@ export default class ProgressBar<
       >
         <div
           className="uppy-ProgressBar-inner"
-          style={{ width: `${progress}%` }}
+          style={{ width: `${totalProgress}%` }}
         />
-        <div className="uppy-ProgressBar-percentage">{progress}</div>
+        <div className="uppy-ProgressBar-percentage">{totalProgress}</div>
       </div>
     )
   }

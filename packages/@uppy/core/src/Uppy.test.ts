@@ -6,23 +6,23 @@ import assert from 'node:assert'
 import fs from 'node:fs'
 import path from 'node:path'
 import prettierBytes from '@transloadit/prettier-bytes'
-import type { Body, Meta } from '@uppy/utils/lib/UppyFile'
+import type { Body, Meta } from '@uppy/core'
 import type { Locale } from '@uppy/utils/lib/Translator'
-import Core from './index.ts'
-import UIPlugin from './UIPlugin.ts'
+import Core from './index.js'
+import UIPlugin from './UIPlugin.js'
 import BasePlugin, {
   type DefinePluginOpts,
   type PluginOpts,
-} from './BasePlugin.ts'
-import { debugLogger } from './loggers.ts'
-import AcquirerPlugin1 from './mocks/acquirerPlugin1.ts'
-import AcquirerPlugin2 from './mocks/acquirerPlugin2.ts'
-import InvalidPlugin from './mocks/invalidPlugin.ts'
-import InvalidPluginWithoutId from './mocks/invalidPluginWithoutId.ts'
-import InvalidPluginWithoutType from './mocks/invalidPluginWithoutType.ts'
+} from './BasePlugin.js'
+import { debugLogger } from './loggers.js'
+import AcquirerPlugin1 from './mocks/acquirerPlugin1.js'
+import AcquirerPlugin2 from './mocks/acquirerPlugin2.js'
+import InvalidPlugin from './mocks/invalidPlugin.js'
+import InvalidPluginWithoutId from './mocks/invalidPluginWithoutId.js'
+import InvalidPluginWithoutType from './mocks/invalidPluginWithoutType.js'
 // @ts-expect-error trying to import a file from outside the package
 import DeepFrozenStore from '../../../../e2e/cypress/fixtures/DeepFrozenStore.mjs'
-import type { State } from './Uppy.ts'
+import type { State } from './Uppy.js'
 
 const sampleImage = fs.readFileSync(
   // eslint-disable-next-line no-restricted-globals
@@ -1187,7 +1187,7 @@ describe('src/Core', () => {
       core.addUploader((fileIDs) => {
         fileIDs.forEach((fileID) => {
           const file = core.getFile(fileID)
-          if (/bar/.test(file.name)) {
+          if (file.name != null && /bar/.test(file.name)) {
             // @ts-ignore
             core.emit(
               'upload-error',
@@ -1701,6 +1701,9 @@ describe('src/Core', () => {
 
       const fileId = Object.keys(core.getState().files)[0]
       const file = core.getFile(fileId)
+
+      core.emit('upload-start', [core.getFile(fileId)])
+
       // @ts-ignore
       core.emit('upload-progress', file, {
         bytesUploaded: 12345,
@@ -1711,7 +1714,7 @@ describe('src/Core', () => {
         bytesUploaded: 12345,
         bytesTotal: 17175,
         uploadComplete: false,
-        uploadStarted: null,
+        uploadStarted: expect.any(Number),
       })
 
       // @ts-ignore
@@ -1720,14 +1723,12 @@ describe('src/Core', () => {
         bytesTotal: 17175,
       })
 
-      core.calculateProgress.flush()
-
       expect(core.getFile(fileId).progress).toEqual({
         percentage: 100,
         bytesUploaded: 17175,
         bytesTotal: 17175,
         uploadComplete: false,
-        uploadStarted: null,
+        uploadStarted: expect.any(Number),
       })
     })
 
@@ -1762,7 +1763,8 @@ describe('src/Core', () => {
         data: {},
       })
 
-      core.calculateTotalProgress()
+      // @ts-ignore
+      core[Symbol.for('uppy test: updateTotalProgress')]()
 
       const uploadPromise = core.upload()
       await Promise.all([
@@ -1774,7 +1776,6 @@ describe('src/Core', () => {
         bytesUploaded: 0,
         // null indicates unsized
         bytesTotal: null,
-        percentage: 0,
       })
 
       // @ts-ignore
@@ -1844,10 +1845,11 @@ describe('src/Core', () => {
         data: {},
       })
 
-      core.calculateTotalProgress()
+      // @ts-ignore
+      core[Symbol.for('uppy test: updateTotalProgress')]()
 
-      // foo.jpg at 35%, bar.jpg at 0%
-      expect(core.getState().totalProgress).toBe(18)
+      // foo.jpg at 35%, bar.jpg has unknown size and will not be counted
+      expect(core.getState().totalProgress).toBe(36)
 
       core.destroy()
     })
@@ -1893,8 +1895,8 @@ describe('src/Core', () => {
         bytesTotal: 17175,
       })
 
-      core.calculateTotalProgress()
-      core.calculateProgress.flush()
+      // @ts-ignore
+      core[Symbol.for('uppy test: updateTotalProgress')]()
 
       expect(core.getState().totalProgress).toEqual(66)
     })
@@ -1937,8 +1939,8 @@ describe('src/Core', () => {
         bytesTotal: 17175,
       })
 
-      core.calculateTotalProgress()
-      core.calculateProgress.flush()
+      // @ts-ignore
+      core[Symbol.for('uppy test: updateTotalProgress')]()
 
       expect(core.getState().totalProgress).toEqual(66)
       expect(core.getState().allowNewUpload).toEqual(true)

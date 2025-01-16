@@ -1,13 +1,13 @@
-import type { Meta, Body, UppyFile } from '@uppy/utils/lib/UppyFile'
+import type { Meta, Body, UppyFile } from '@uppy/core'
 import type {
   RateLimitedQueue,
   WrapPromiseFunctionType,
 } from '@uppy/utils/lib/RateLimitedQueue'
-import { pausingUploadReason, type Chunk } from './MultipartUploader.ts'
-import type AwsS3Multipart from './index.ts'
-import { throwIfAborted } from './utils.ts'
-import type { UploadPartBytesResult, UploadResult } from './utils.ts'
-import type { AwsS3MultipartOptions, uploadPartBytes } from './index.ts'
+import { pausingUploadReason, type Chunk } from './MultipartUploader.js'
+import type AwsS3Multipart from './index.js'
+import { throwIfAborted } from './utils.js'
+import type { UploadPartBytesResult, UploadResult } from './utils.js'
+import type { AwsS3MultipartOptions, uploadPartBytes } from './index.js'
 
 function removeMetadataFromURL(urlString: string) {
   const urlObject = new URL(urlString)
@@ -242,7 +242,7 @@ export class HTTPCommunicationQueue<M extends Meta, B extends Body> {
     file: UppyFile<M, B>,
     chunk: Chunk,
     signal?: AbortSignal,
-  ): Promise<UploadPartBytesResult & B> {
+  ) {
     const {
       method = 'POST',
       url,
@@ -252,7 +252,7 @@ export class HTTPCommunicationQueue<M extends Meta, B extends Body> {
       signal,
     }).abortOn(signal)
 
-    let body
+    let body: FormData | Blob
     const data = chunk.getData()
     if (method.toUpperCase() === 'POST') {
       const formData = new FormData()
@@ -267,21 +267,30 @@ export class HTTPCommunicationQueue<M extends Meta, B extends Body> {
 
     const { onProgress, onComplete } = chunk
 
-    const result = await this.#uploadPartBytes({
+    const result = (await this.#uploadPartBytes({
       signature: { url, headers, method } as any,
       body,
       size: data.size,
       onProgress,
       onComplete,
       signal,
-    }).abortOn(signal)
+    }).abortOn(signal)) as unknown as B // todo this doesn't make sense
 
-    return 'location' in result ?
-        (result as UploadPartBytesResult & B)
-      : ({
-          location: removeMetadataFromURL(url),
-          ...result,
-        } as any)
+    const key = fields?.key
+    if (!key) {
+      console.error(
+        'Expected `fields.key` to be returend but the backend/Companion',
+      )
+    }
+    this.#setS3MultipartState(file, { key: key! })
+
+    return {
+      ...result,
+      location:
+        (result.location as string | undefined) ?? removeMetadataFromURL(url),
+      bucket: fields?.bucket,
+      key,
+    }
   }
 
   async uploadFile(
@@ -390,7 +399,8 @@ export class HTTPCommunicationQueue<M extends Meta, B extends Body> {
 
       try {
         signature = await this.#fetchSignature(this.#getFile(file), {
-          uploadId,
+          // Always defined for multipart uploads
+          uploadId: uploadId!,
           key,
           partNumber,
           body: chunkData,

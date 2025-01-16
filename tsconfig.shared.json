@@ -7,7 +7,6 @@
     "lib": ["dom", "ESnext"],
     "resolveJsonModule": true,
     "useUnknownInCatchVariables": false,
-    "allowImportingTsExtensions": true,
     "allowJs": false,
     "declaration": true,
     "emitDeclarationOnly": true,
@@ -18,6 +17,7 @@
     "noImplicitThis": true,
     "strict": true,
     "verbatimModuleSyntax": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
   }
 }

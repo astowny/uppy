@@ -1,5 +1,4 @@
-import type { Body, Meta } from '@uppy/utils/lib/UppyFile'
-import type { State, Uppy } from '@uppy/core/lib/Uppy.js'
+import type { Body, Meta, State, Uppy } from '@uppy/core'
 import type { FileProcessingInfo } from '@uppy/utils/lib/FileProgress'
 import type { I18n } from '@uppy/utils/lib/Translator'
 import { h } from 'preact'
@@ -7,7 +6,7 @@ import classNames from 'classnames'
 import prettierBytes from '@transloadit/prettier-bytes'
 import prettyETA from '@uppy/utils/lib/prettyETA'
 
-import statusBarStates from './StatusBarStates.ts'
+import statusBarStates from './StatusBarStates.js'
 
 const DOT = `\u00B7`
 const renderDot = (): string => ` ${DOT} `
@@ -265,8 +264,8 @@ interface ProgressDetailsProps {
   numUploads: number
   complete: number
   totalUploadedSize: number
-  totalSize: number
-  totalETA: number
+  totalSize: number | null
+  totalETA: number | null
 }
 
 function ProgressDetails(props: ProgressDetailsProps) {
@@ -274,6 +273,8 @@ function ProgressDetails(props: ProgressDetailsProps) {
     props
 
   const ifShowFilesUploadedOfTotal = numUploads > 1
+
+  const totalUploadedSizeStr = prettierBytes(totalUploadedSize)
 
   return (
     <div className="uppy-StatusBar-statusSecondary">
@@ -289,16 +290,19 @@ function ProgressDetails(props: ProgressDetailsProps) {
         */}
         {ifShowFilesUploadedOfTotal && renderDot()}
 
-        {i18n('dataUploadedOfTotal', {
-          complete: prettierBytes(totalUploadedSize),
-          total: prettierBytes(totalSize),
-        })}
+        {totalSize != null ?
+          i18n('dataUploadedOfTotal', {
+            complete: totalUploadedSizeStr,
+            total: prettierBytes(totalSize),
+          })
+        : i18n('dataUploadedOfUnknown', { complete: totalUploadedSizeStr })}
 
         {renderDot()}
 
-        {i18n('xTimeLeft', {
-          time: prettyETA(totalETA),
-        })}
+        {totalETA != null &&
+          i18n('xTimeLeft', {
+            time: prettyETA(totalETA),
+          })}
       </span>
     </div>
   )
@@ -364,8 +368,8 @@ interface ProgressBarUploadingProps {
   numUploads: number
   complete: number
   totalUploadedSize: number
-  totalSize: number
-  totalETA: number
+  totalSize: number | null
+  totalETA: number | null
   startUpload: () => void
 }
 
@@ -427,7 +431,9 @@ function ProgressBarUploading(props: ProgressBarUploadingProps) {
       : null}
       <div className="uppy-StatusBar-status">
         <div className="uppy-StatusBar-statusPrimary">
-          {supportsUploadProgress ? `${title}: ${totalProgress}%` : title}
+          {supportsUploadProgress && totalProgress !== 0 ?
+            `${title}: ${totalProgress}%`
+          : title}
         </div>
 
         {renderProgressDetails()}

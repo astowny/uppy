@@ -4,9 +4,9 @@ import findDOMElement from '@uppy/utils/lib/findDOMElement'
 import getTextDirection from '@uppy/utils/lib/getTextDirection'
 
 import type { Body, Meta } from '@uppy/utils/lib/UppyFile'
-import BasePlugin from './BasePlugin.ts'
-import type { PluginOpts } from './BasePlugin.ts'
-import type { State } from './Uppy.ts'
+import BasePlugin from './BasePlugin.js'
+import type { PluginOpts } from './BasePlugin.js'
+import type { State } from './Uppy.js'
 
 /**
  * Defer a frequent call to the microtask queue.
@@ -183,7 +183,7 @@ class UIPlugin<
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     state: Record<string, unknown>,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    container: HTMLElement,
+    container?: HTMLElement,
   ): any {
     throw new Error(
       'Extend the render method to add your plugin to a DOM element',

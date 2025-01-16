@@ -54,11 +54,7 @@ module.exports = {
       ignore: svgPresentationAttributes,
     }],
 
-    // Special rules for CI:
-    ...(process.env.CI && {
-      // Some imports are available only after a full build, which we don't do on CI.
-      'import/no-unresolved': 'off',
-    }),
+    'import/no-unresolved': 'off',
 
     // rules we want to enforce
     'array-callback-return': 'error',
@@ -389,14 +385,7 @@ module.exports = {
       processor: 'markdown/markdown',
     },
     {
-      files: ['docs/**/*.md/*.js'],
-      parserOptions: {
-        sourceType: 'module',
-      },
-    },
-    {
       files: ['**/*.md/*.js', '**/*.md/*.javascript'],
-      excludedFiles: ["docs/**/*"],
       parserOptions: {
         sourceType: 'module',
       },
@@ -447,14 +436,15 @@ module.exports = {
       rules: {
         'no-extra-semi': 'off',
         'no-restricted-syntax': ['error', {
-          selector: 'ImportDeclaration[importKind="type"][source.value=/^@uppy\\x2F[a-z-0-9]+\\x2F/]:not([source.value=/^@uppy\\x2Futils\\x2F/]):not([source.value=/\\.js$/])',
+          selector: 'ImportDeclaration[source.value=/^@uppy\\x2F[a-z-0-9]+\\x2F/]:not([source.value=/^@uppy\\x2Futils\\x2F/]):not([source.value=/\\.(js|css)$/])',
           message: 'Use ".js" file extension for import type declarations from a different package',
-        }, {
-          selector: 'ImportDeclaration[importKind="type"][source.value=/^\\.\\.?\\x2F.+\\.js$/]',
-          message: 'Do not use ".js" file extension for relative import type declarations',
         }, {
           selector: 'ImportDeclaration[source.value=/^@uppy\\x2Futils\\x2Flib\\x2F.+\\.[mc]?[jt]sx?$/]',
           message: 'Do not use file extension when importing from @uppy/utils',
+        },
+        {
+          selector: 'ImportDeclaration[source.value=/^@uppy\\x2F[a-z-0-9]+\\x2Fsrc\\x2F/]',
+          message: 'Importing from "src/" is not allowed. Import from root or from "lib/" if you must.',
         }],
         'import/extensions': ['error', 'ignorePackages'],
         'import/prefer-default-export': 'off',
@@ -498,6 +488,14 @@ module.exports = {
         'no-lone-blocks': 'off',
         'no-unused-expressions': 'off',
         'no-unused-vars': 'off',
+      },
+    },
+    {
+      files: [
+        'packages/@uppy/svelte/**',
+      ],
+      parserOptions: {
+        sourceType: 'module',
       },
     },
     {

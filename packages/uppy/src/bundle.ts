@@ -4,7 +4,7 @@ export { default as Uppy, debugLogger } from '@uppy/core'
 
 // Plugin base classes
 export { default as UIPlugin } from '@uppy/core/lib/UIPlugin.js'
-export { default as BasePlugin } from '@uppy/core/lib/BasePlugin.js'
+export { default as BasePlugin } from '@uppy/core'
 
 /**
  * @deprecated Use `Uppy` instead of `Core`
@@ -22,6 +22,9 @@ export const views = { ProviderView }
 
 // Stores
 export { default as DefaultStore } from '@uppy/store-default'
+// not yet typed
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 export { default as ReduxStore } from '@uppy/store-redux'
 
 // UI plugins
@@ -41,6 +44,8 @@ export { default as Dropbox } from '@uppy/dropbox'
 export { default as Facebook } from '@uppy/facebook'
 export { default as GoogleDrive } from '@uppy/google-drive'
 export { default as GooglePhotos } from '@uppy/google-photos'
+export { default as GoogleDrivePicker } from '@uppy/google-drive-picker'
+export { default as GooglePhotosPicker } from '@uppy/google-photos-picker'
 export { default as Instagram } from '@uppy/instagram'
 export { default as OneDrive } from '@uppy/onedrive'
 export { default as RemoteSources } from '@uppy/remote-sources'
@@ -60,6 +65,9 @@ export { default as XHRUpload } from '@uppy/xhr-upload'
 export { default as Compressor } from '@uppy/compressor'
 export { default as Form } from '@uppy/form'
 export { default as GoldenRetriever } from '@uppy/golden-retriever'
+// not yet typed
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 export { default as ReduxDevTools } from '@uppy/redux-dev-tools'
 export { default as ThumbnailGenerator } from '@uppy/thumbnail-generator'
 

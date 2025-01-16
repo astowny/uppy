@@ -8,21 +8,25 @@ import { UIPlugin, Uppy } from '@uppy/core'
 import { ProviderViews } from '@uppy/provider-views'
 import { h, type ComponentChild } from 'preact'
 
-import type { UppyFile, Body, Meta } from '@uppy/utils/lib/UppyFile'
-import type { UnknownProviderPluginState } from '@uppy/core/lib/Uppy.js'
-import locale from './locale.ts'
+import type {
+  UppyFile,
+  Body,
+  Meta,
+  AsyncStore,
+  UnknownProviderPlugin,
+  UnknownProviderPluginState,
+} from '@uppy/core'
+import locale from './locale.js'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore We don't want TS to generate types for the package.json
 import packageJson from '../package.json'
 
 export type ZoomOptions = CompanionPluginOptions
 
-export default class Zoom<M extends Meta, B extends Body> extends UIPlugin<
-  ZoomOptions,
-  M,
-  B,
-  UnknownProviderPluginState
-> {
+export default class Zoom<M extends Meta, B extends Body>
+  extends UIPlugin<ZoomOptions, M, B, UnknownProviderPluginState>
+  implements UnknownProviderPlugin<M, B>
+{
   static VERSION = packageJson.version
 
   icon: () => h.JSX.Element
@@ -31,7 +35,7 @@ export default class Zoom<M extends Meta, B extends Body> extends UIPlugin<
 
   view!: ProviderViews<M, B>
 
-  storage: typeof tokenStorage
+  storage: AsyncStore
 
   files: UppyFile<M, B>[]
 
